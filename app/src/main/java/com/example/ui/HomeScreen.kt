@@ -103,6 +103,7 @@ fun HomeScreen(
   onRequestCalendarPermission: () -> Unit = {},
   lockScreenEnabled: Boolean = true,
   onLockScreenEnabledChange: (Boolean) -> Unit = {},
+  onOpenNotificationCenter: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val uiState by viewModel.uiState.collectAsState()
@@ -154,6 +155,9 @@ fun HomeScreen(
           modifier = Modifier.align(Alignment.CenterEnd).padding(end = 6.dp),
           verticalAlignment = Alignment.CenterVertically
         ) {
+          androidx.compose.material3.TextButton(onClick = onOpenNotificationCenter) {
+            Text("NOTIF", color = Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+          }
           androidx.compose.material3.TextButton(onClick = { showControlCenter = true }) {
             Text("CC", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
           }
