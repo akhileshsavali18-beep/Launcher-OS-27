@@ -45,6 +45,7 @@ fun AppLibrarySheet(
       .sortedWith(compareByDescending<AppInfo> { it.label.startsWith(q, true) }.thenBy { it.label.lowercase() })
   }
   var selectedLetter by remember { mutableStateOf<Char?>(null) }
+  var selectedCategory by remember { mutableStateOf<AppCategory?>(null) }
   val letters = remember(apps) { apps.mapNotNull { it.label.firstOrNull()?.uppercaseChar() }.distinct().sorted() }
 
   Column(modifier.fillMaxSize().padding(horizontal = 16.dp).testTag("app_library_screen")) {
@@ -93,18 +94,39 @@ fun AppLibrarySheet(
           }
         }
         item {
-          SectionTitle("Categories")
-          Row(modifier = Modifier.fillMaxWidth()) {
-            LazyVerticalGrid(
-              columns = GridCells.Fixed(2),
-              modifier = Modifier.weight(1f).heightIn(min = 300.dp, max = 1000.dp),
-              horizontalArrangement = Arrangement.spacedBy(14.dp),
-              verticalArrangement = Arrangement.spacedBy(14.dp)
+          if (selectedCategory != null) {
+            val categoryApps = apps.filter { it.category == selectedCategory }
+            Row(
+              Modifier.fillMaxWidth().padding(bottom = 8.dp),
+              verticalAlignment = Alignment.CenterVertically,
+              horizontalArrangement = Arrangement.SpaceBetween
             ) {
-              items(AppCategory.values().filter { c -> apps.any { it.category == c } }) { category ->
-                CategoryClusterCard(category, apps.filter { it.category == category }, onAppClick)
+              SectionTitle(selectedCategory!!.title)
+              GlassPill(text = "BACK", onClick = { selectedCategory = null })
+            }
+            LazyVerticalGrid(
+              columns = GridCells.Fixed(4),
+              modifier = Modifier.fillMaxWidth().heightIn(min = 220.dp, max = 900.dp),
+              horizontalArrangement = Arrangement.spacedBy(10.dp),
+              verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+              items(categoryApps, key = { it.packageName + it.activityName }) { app ->
+                AppIconItem(app = app, iconSize = 54.dp, showLabel = true, onClick = { onAppClick(app) })
               }
             }
+          } else {
+            SectionTitle("Categories")
+            Row(modifier = Modifier.fillMaxWidth()) {
+              LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f).heightIn(min = 300.dp, max = 1000.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+              ) {
+                items(AppCategory.values().filter { c -> apps.any { it.category == c } }) { category ->
+                  CategoryClusterCard(category, apps.filter { it.category == category }, onAppClick, onCategoryClick = { selectedCategory = it })
+                }
+              }
             if (letters.isNotEmpty()) {
               Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(22.dp).padding(top = 4.dp)) {
                 letters.forEach { letter ->
@@ -125,8 +147,8 @@ fun AppLibrarySheet(
   Text(title, color = Color.White.copy(.9f), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 4.dp, bottom = 8.dp))
 }
 
-@Composable private fun GlassPill(text: String) {
-  Box(Modifier.clip(RoundedCornerShape(14.dp)).background(Color.White.copy(.12f)).padding(horizontal = 10.dp, vertical = 6.dp)) {
+@Composable private fun GlassPill(text: String, onClick: (() -> Unit)? = null) {
+  Box(Modifier.clip(RoundedCornerShape(14.dp)).background(Color.White.copy(.12f)).clickable(enabled = onClick != null) { onClick?.invoke() }.padding(horizontal = 10.dp, vertical = 6.dp)) {
     Text(text, color = Color.White.copy(.75f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
   }
 }
@@ -148,8 +170,19 @@ fun AppLibrarySheet(
 }
 
 @Composable
-fun CategoryClusterCard(category: AppCategory, apps: List<AppInfo>, onAppClick: (AppInfo) -> Unit, modifier: Modifier = Modifier) {
-  GlassCard(modifier = modifier.height(178.dp).fillMaxWidth(), backgroundColor = GlassWhiteMedium, shape = RoundedCornerShape(26.dp)) {
+fun CategoryClusterCard(
+  category: AppCategory,
+  apps: List<AppInfo>,
+  onAppClick: (AppInfo) -> Unit,
+  modifier: Modifier = Modifier,
+  onCategoryClick: (AppCategory) -> Unit = {}
+) {
+  GlassCard(
+    modifier = modifier.height(178.dp).fillMaxWidth(),
+    backgroundColor = GlassWhiteMedium,
+    shape = RoundedCornerShape(26.dp),
+    onClick = { onCategoryClick(category) }
+  ) {
     Column(Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.SpaceBetween) {
       Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         apps.take(2).forEach { AppIconItem(app = it, iconSize = 46.dp, showLabel = false, onClick = { onAppClick(it) }) }
