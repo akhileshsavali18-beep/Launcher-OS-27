@@ -127,7 +127,7 @@ fun AppLibrarySheet(
                   CategoryClusterCard(category, apps.filter { it.category == category }, onAppClick, onCategoryClick = { selectedCategory = it })
                 }
               }
-            if (letters.isNotEmpty()) {
+              if (letters.isNotEmpty()) {
               Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(22.dp).padding(top = 4.dp)) {
                 letters.forEach { letter ->
                   Text(letter.toString(), color = if (selectedLetter == letter) Color.White else Color.White.copy(.6f), fontSize = 10.sp, fontWeight = FontWeight.Bold,
