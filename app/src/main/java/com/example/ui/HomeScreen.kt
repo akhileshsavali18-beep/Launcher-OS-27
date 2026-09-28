@@ -401,6 +401,57 @@ fun HomeScreen(
       )
     }
 
+    if (showControlCenter) {
+      ControlCenterOverlay(
+        toggleState = uiState.quickToggles,
+        onDismiss = { showControlCenter = false },
+        onWifi = viewModel::toggleWifi,
+        onBluetooth = viewModel::toggleBluetooth,
+        onFlashlight = viewModel::toggleFlashlight,
+        onAirplane = viewModel::toggleAirplane,
+        onSettings = { showControlCenter = false; showLauncherSettings = true },
+        activity = activity,
+        onDeviceDashboard = { showControlCenter = false; showDeviceDashboard = true }
+      )
+    }
+
+    if (showDeviceDashboard) {
+      Box(
+        Modifier.fillMaxSize().background(Color.Black.copy(alpha = .55f)).clickable { showDeviceDashboard = false },
+        contentAlignment = Alignment.Center
+      ) {
+        Box(Modifier.padding(14.dp).clickable(enabled = false) {}) {
+          DeviceDashboard(onDismiss = { showDeviceDashboard = false })
+        }
+      }
+    }
+
+    if (showWidgetSettings) {
+      AlertDialog(
+        onDismissRequest = { showWidgetSettings = false },
+        title = { Text("Home Widgets") },
+        text = {
+          Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            val options = listOf("clock" to "Clock", "weather" to "Weather", "battery" to "Battery", "calendar" to "Calendar", "recent" to "Recent Apps")
+            options.forEach { (id, label) ->
+              val index = uiState.enabledWidgets.indexOf(id)
+              Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                Switch(checked = index >= 0, onCheckedChange = { viewModel.setWidgetEnabled(id, it) })
+                Text(label, modifier = Modifier.weight(1f))
+                TextButton(enabled = index > 0, onClick = { viewModel.moveWidget(id, -1) }) { Text("↑") }
+                TextButton(enabled = index >= 0 && index < uiState.enabledWidgets.lastIndex, onClick = { viewModel.moveWidget(id, 1) }) { Text("↓") }
+              }
+            }
+            Spacer(Modifier.height(6.dp))
+            TextButton(onClick = { viewModel.resetWidgetOrder() }, modifier = Modifier.fillMaxWidth()) {
+              Text("Reset widget order")
+            }
+          }
+        },
+        confirmButton = { TextButton(onClick = { showWidgetSettings = false }) { Text("DONE") } }
+      )
+    }
+
     // Snackbar Host
     SnackbarHost(
       hostState = snackbarHostState,
@@ -869,54 +920,7 @@ private fun PageIndicators(
           .clickable { onDotClick(index) }
       )
     }
-    if (showControlCenter) {
-      ControlCenterOverlay(
-        toggleState = uiState.quickToggles,
-        onDismiss = { showControlCenter = false },
-        onWifi = viewModel::toggleWifi,
-        onBluetooth = viewModel::toggleBluetooth,
-        onFlashlight = viewModel::toggleFlashlight,
-        onAirplane = viewModel::toggleAirplane,
-        onSettings = { showControlCenter = false; showLauncherSettings = true },
-        activity = activity,
-        onDeviceDashboard = { showControlCenter = false; showDeviceDashboard = true }
-      )
-    }
-    if (showDeviceDashboard) {
-      Box(
-        Modifier.fillMaxSize().background(Color.Black.copy(alpha = .55f)).clickable { showDeviceDashboard = false },
-        contentAlignment = Alignment.Center
-      ) {
-        Box(Modifier.padding(14.dp).clickable(enabled = false) {}) {
-          DeviceDashboard(onDismiss = { showDeviceDashboard = false })
-        }
-      }
-    }
-    if (showWidgetSettings) {
-      AlertDialog(
-        onDismissRequest = { showWidgetSettings = false },
-        title = { Text("Home Widgets") },
-        text = {
-          Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            val options = listOf("clock" to "Clock", "weather" to "Weather", "battery" to "Battery", "calendar" to "Calendar", "recent" to "Recent Apps")
-            options.forEach { (id, label) ->
-              val index = uiState.enabledWidgets.indexOf(id)
-              Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                Switch(checked = index >= 0, onCheckedChange = { viewModel.setWidgetEnabled(id, it) })
-                Text(label, modifier = Modifier.weight(1f))
-                TextButton(enabled = index > 0, onClick = { viewModel.moveWidget(id, -1) }) { Text("↑") }
-                TextButton(enabled = index >= 0 && index < uiState.enabledWidgets.lastIndex, onClick = { viewModel.moveWidget(id, 1) }) { Text("↓") }
-              }
-            }
-            Spacer(Modifier.height(6.dp))
-            TextButton(onClick = { viewModel.resetWidgetOrder() }, modifier = Modifier.fillMaxWidth()) {
-              Text("Reset widget order")
-            }
-          }
-        },
-        confirmButton = { TextButton(onClick = { showWidgetSettings = false }) { Text("DONE") } }
-      )
-    }
+
 
   }
 }
