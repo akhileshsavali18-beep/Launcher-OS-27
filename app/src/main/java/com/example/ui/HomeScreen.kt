@@ -110,6 +110,7 @@ fun HomeScreen(
   val isPremium by subscriptionManager.premium.collectAsState()
   var showPremium by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
   var showControlCenter by remember { mutableStateOf(false) }
+  var showDeviceDashboard by remember { mutableStateOf(false) }
   var showLauncherSettings by remember { mutableStateOf(false) }
   var showWidgetSettings by remember { mutableStateOf(false) }
   var editMode by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
@@ -824,7 +825,8 @@ private fun PageIndicators(
         onFlashlight = viewModel::toggleFlashlight,
         onAirplane = viewModel::toggleAirplane,
         onSettings = { showControlCenter = false; showLauncherSettings = true },
-        activity = activity
+        activity = activity,
+        onDeviceDashboard = { showControlCenter = false; showDeviceDashboard = true }
       )
     }
     if (showWidgetSettings) {
@@ -866,7 +868,8 @@ private fun ControlCenterOverlay(
   onFlashlight: () -> Unit,
   onAirplane: () -> Unit,
   onSettings: () -> Unit,
-  activity: Activity
+  activity: Activity,
+  onDeviceDashboard: () -> Unit = {}
 ) {
   val context = androidx.compose.ui.platform.LocalContext.current
   val audio = remember { context.getSystemService(android.content.Context.AUDIO_SERVICE) as AudioManager }
@@ -904,6 +907,7 @@ private fun ControlCenterOverlay(
           valueRange = 0.01f..1f,
           modifier = Modifier.fillMaxWidth()
         )
+        TextButton(onClick = onDeviceDashboard, modifier = Modifier.fillMaxWidth()) { Text("🔋 Battery & Device", color = Color.White, fontWeight = FontWeight.Bold) }
         Text("🔊  Volume", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
         Slider(value = volume, onValueChange = { volume = it; audio.setStreamVolume(AudioManager.STREAM_MUSIC, (it * maxVolume).roundToInt(), 0) }, modifier = Modifier.fillMaxWidth())
         Text("Tap outside to close", color = Color.White.copy(alpha = .55f), fontSize = 10.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
