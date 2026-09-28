@@ -829,6 +829,16 @@ private fun PageIndicators(
         onDeviceDashboard = { showControlCenter = false; showDeviceDashboard = true }
       )
     }
+    if (showDeviceDashboard) {
+      Box(
+        Modifier.fillMaxSize().background(Color.Black.copy(alpha = .55f)).clickable { showDeviceDashboard = false },
+        contentAlignment = Alignment.Center
+      ) {
+        Box(Modifier.padding(14.dp).clickable(enabled = false) {}) {
+          DeviceDashboard(onDismiss = { showDeviceDashboard = false })
+        }
+      }
+    }
     if (showWidgetSettings) {
       AlertDialog(
         onDismissRequest = { showWidgetSettings = false },
