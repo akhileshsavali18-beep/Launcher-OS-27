@@ -33,3 +33,12 @@
 - Active page remains a wider capsule; inactive pages remain translucent dots.
 - Existing pager, widgets, dock, customization, ads and subscription behavior preserved.
 - This source package has not been compiled into an APK in this environment.
+
+
+## Step 29 — Play Store and release preparation
+- Version metadata prepared as 1.0.0 with versionCode 1 for the first production release.
+- Added `PLAY_STORE_LISTING.md` with store copy and required asset checklist.
+- Added `RELEASE_NOTES_V1.md`.
+- Permanent latest APK URL is documented in `PLAY_STORE_CHECKLIST.md`.
+- Production AdMob IDs must replace the Google test App ID/test ad units before production release.
+- Google Play Billing remains disabled until the Play Console products are created and tested.
