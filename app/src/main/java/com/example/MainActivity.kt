@@ -130,6 +130,11 @@ class MainActivity : ComponentActivity() {
                 onRemove = { notificationCenterController.remove(it) },
                 onOpenSettings = {
                   runCatching { startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")) }
+                },
+                onOpenApp = { packageName ->
+                  runCatching {
+                    packageManager.getLaunchIntentForPackage(packageName)?.let { startActivity(it) }
+                  }
                 }
               )
             }
