@@ -55,6 +55,7 @@ fun AppIconItem(
   modifier: Modifier = Modifier,
   iconSize: Dp = 60.dp,
   showLabel: Boolean = true,
+  animatePress: Boolean = true,
   onClick: () -> Unit,
   onLongClick: (() -> Unit)? = null,
   folderPreviewApps: List<AppInfo> = emptyList()
@@ -62,8 +63,8 @@ fun AppIconItem(
   val interactionSource = remember { MutableInteractionSource() }
   val isPressed by interactionSource.collectIsPressedAsState()
   val scale by animateFloatAsState(
-    targetValue = if (isPressed) 0.88f else 1.0f,
-    animationSpec = tween(durationMillis = 90),
+    targetValue = if (animatePress && isPressed) 0.88f else 1.0f,
+    animationSpec = tween(durationMillis = if (animatePress) 90 else 0),
     label = "iconScale"
   )
 
