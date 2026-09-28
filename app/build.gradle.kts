@@ -19,6 +19,7 @@ android {
     targetSdk = 35
     versionCode = 1
     versionName = "1.0.0"
+    // CI verification: keep Android Build workflow active.
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
