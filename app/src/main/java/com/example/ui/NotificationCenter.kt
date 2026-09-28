@@ -76,7 +76,7 @@ private fun NotificationCard(item: LauncherNotification, onRemove: () -> Unit, o
       Text(item.appName, color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp)
       Text(item.title.ifBlank { "Notification" }, color = Color.White, fontSize = 15.sp)
       Text(item.message, color = Color.White.copy(alpha = 0.75f), fontSize = 13.sp, maxLines = 4)
-      Text(DateUtils.getRelativeTimeSpanString(item.timestamp), color = Color.White.copy(alpha = 0.4f), fontSize = 10.sp)
+      Text(DateUtils.getRelativeTimeSpanString(item.timestamp).toString(), color = Color.White.copy(alpha = 0.4f), fontSize = 10.sp)
     }
     TextButton(onClick = onRemove) { Text("×") }
   }
