@@ -37,6 +37,7 @@ import com.example.ui.DynamicIsland
 import com.example.ui.DynamicIslandController
 import com.example.ui.NotificationCenter
 import com.example.ui.NotificationCenterController
+import com.example.ui.MediaSessionBridge
 import com.example.ads.AdsManager
 import com.example.billing.SubscriptionManager
 import com.example.ui.theme.MyApplicationTheme
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
     val lockScreenController = LockScreenController(this)
     val dynamicIslandController = DynamicIslandController(this)
     val notificationCenterController = NotificationCenterController(this)
+    val mediaSessionBridge = MediaSessionBridge(this)
     setContent {
       val viewModel: LauncherViewModel = viewModel()
       val uiState by viewModel.uiState.collectAsState()
@@ -93,6 +95,14 @@ class MainActivity : ComponentActivity() {
       }
 
       LaunchedEffect(Unit) {
+        while (true) {
+          mediaSessionBridge.refresh { title, artist, playing ->
+            dynamicIslandController.setMusic(title, artist, playing)
+          }
+          kotlinx.coroutines.delay(1500L)
+        }
+      }
+      LaunchedEffect(Unit) {
         val coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (coarse || fine) viewModel.refreshWeather()
@@ -119,6 +129,9 @@ class MainActivity : ComponentActivity() {
 
             DynamicIsland(
               state = dynamicIslandState,
+              onMusicPlayPause = { mediaSessionBridge.togglePlayPause() },
+              onMusicNext = { mediaSessionBridge.next() },
+              onMusicPrevious = { mediaSessionBridge.previous() },
               modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp)
             )
 
