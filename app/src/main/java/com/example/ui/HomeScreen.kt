@@ -823,7 +823,8 @@ private fun PageIndicators(
         onBluetooth = viewModel::toggleBluetooth,
         onFlashlight = viewModel::toggleFlashlight,
         onAirplane = viewModel::toggleAirplane,
-        onSettings = { showControlCenter = false; showLauncherSettings = true }
+        onSettings = { showControlCenter = false; showLauncherSettings = true },
+        activity = activity
       )
     }
     if (showWidgetSettings) {
@@ -864,13 +865,17 @@ private fun ControlCenterOverlay(
   onBluetooth: () -> Unit,
   onFlashlight: () -> Unit,
   onAirplane: () -> Unit,
-  onSettings: () -> Unit
+  onSettings: () -> Unit,
+  activity: Activity
 ) {
   val context = androidx.compose.ui.platform.LocalContext.current
   val audio = remember { context.getSystemService(android.content.Context.AUDIO_SERVICE) as AudioManager }
   val maxVolume = remember { audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1) }
   var volume by remember { mutableStateOf(audio.getStreamVolume(AudioManager.STREAM_MUSIC).toFloat() / maxVolume) }
-  var brightness by remember { mutableStateOf(0.7f) }
+  val initialBrightness = remember {
+    runCatching { activity.window.attributes.screenBrightness.takeIf { it >= 0f } ?: 0.5f }.getOrDefault(0.5f)
+  }
+  var brightness by remember { mutableStateOf(initialBrightness) }
   Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = .45f)).clickable(onClick = onDismiss)) {
     GlassCard(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 58.dp).clickable(onClick = {}), GlassWhiteHigh) {
       Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -890,7 +895,15 @@ private fun ControlCenterOverlay(
           CCButton("Airplane", toggleState.isAirplaneMode, CupertinoOrange, onAirplane, Modifier.weight(1f))
         }
         Text("☀  Brightness", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-        Slider(value = brightness, onValueChange = { brightness = it }, modifier = Modifier.fillMaxWidth())
+        Slider(
+          value = brightness,
+          onValueChange = {
+            brightness = it
+            activity.window.attributes = activity.window.attributes.apply { screenBrightness = it.coerceIn(0.01f, 1f) }
+          },
+          valueRange = 0.01f..1f,
+          modifier = Modifier.fillMaxWidth()
+        )
         Text("🔊  Volume", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
         Slider(value = volume, onValueChange = { volume = it; audio.setStreamVolume(AudioManager.STREAM_MUSIC, (it * maxVolume).roundToInt(), 0) }, modifier = Modifier.fillMaxWidth())
         Text("Tap outside to close", color = Color.White.copy(alpha = .55f), fontSize = 10.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
