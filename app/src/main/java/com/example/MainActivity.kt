@@ -3,6 +3,8 @@ package com.example
 import android.os.Bundle
 import android.content.Intent
 import android.provider.MediaStore
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothProfile
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,6 +15,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,6 +32,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.HomeScreen
 import com.example.ui.LockScreenOverlay
 import com.example.ui.LockScreenController
+import com.example.ui.DynamicIsland
+import com.example.ui.DynamicIslandController
 import com.example.ads.AdsManager
 import com.example.billing.SubscriptionManager
 import com.example.ui.theme.MyApplicationTheme
@@ -53,9 +59,11 @@ class MainActivity : ComponentActivity() {
     val subscriptionManager = SubscriptionManager(this)
     billingManager = subscriptionManager
     val lockScreenController = LockScreenController(this)
+    val dynamicIslandController = DynamicIslandController(this)
     setContent {
       val viewModel: LauncherViewModel = viewModel()
       val uiState by viewModel.uiState.collectAsState()
+      val dynamicIslandState by dynamicIslandController.state.collectAsState()
       val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
       ) { result ->
@@ -63,6 +71,21 @@ class MainActivity : ComponentActivity() {
           viewModel.refreshWeather()
         }
       }
+      LaunchedEffect(uiState.batteryState, uiState.quickToggles.isBluetoothEnabled) {
+        val bluetoothConnected = if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED) {
+          runCatching {
+            val adapter = BluetoothAdapter.getDefaultAdapter()
+            adapter?.getProfileConnectionState(BluetoothProfile.A2DP) == BluetoothProfile.STATE_CONNECTED ||
+              adapter?.getProfileConnectionState(BluetoothProfile.HEADSET) == BluetoothProfile.STATE_CONNECTED
+          }.getOrDefault(false)
+        } else false
+        dynamicIslandController.updateSystemState(
+          charging = uiState.batteryState.isCharging,
+          batteryPercent = uiState.batteryState.percentage,
+          bluetoothConnected = bluetoothConnected
+        )
+      }
+
       LaunchedEffect(Unit) {
         val coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -87,6 +110,11 @@ class MainActivity : ComponentActivity() {
         ) {
           androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
             HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) }, lockScreenEnabled = lockScreenController.enabled, onLockScreenEnabledChange = { lockScreenController.setEnabled(it) })
+
+            DynamicIsland(
+              state = dynamicIslandState,
+              modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp)
+            )
 
             if (showLockScreen) {
               LockScreenOverlay(
