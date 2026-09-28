@@ -3,6 +3,7 @@ package com.example
 import android.os.Bundle
 import android.content.Intent
 import android.provider.MediaStore
+import android.provider.Settings
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.Manifest
@@ -34,6 +35,8 @@ import com.example.ui.LockScreenOverlay
 import com.example.ui.LockScreenController
 import com.example.ui.DynamicIsland
 import com.example.ui.DynamicIslandController
+import com.example.ui.NotificationCenter
+import com.example.ui.NotificationCenterController
 import com.example.ads.AdsManager
 import com.example.billing.SubscriptionManager
 import com.example.ui.theme.MyApplicationTheme
@@ -60,10 +63,13 @@ class MainActivity : ComponentActivity() {
     billingManager = subscriptionManager
     val lockScreenController = LockScreenController(this)
     val dynamicIslandController = DynamicIslandController(this)
+    val notificationCenterController = NotificationCenterController(this)
     setContent {
       val viewModel: LauncherViewModel = viewModel()
       val uiState by viewModel.uiState.collectAsState()
       val dynamicIslandState by dynamicIslandController.state.collectAsState()
+      val notifications by notificationCenterController.notifications.collectAsState()
+      var showNotificationCenter by mutableStateOf(false)
       val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
       ) { result ->
@@ -109,12 +115,24 @@ class MainActivity : ComponentActivity() {
           color = Color.Black
         ) {
           androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
-            HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) }, lockScreenEnabled = lockScreenController.enabled, onLockScreenEnabledChange = { lockScreenController.setEnabled(it) })
+            HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) }, lockScreenEnabled = lockScreenController.enabled, onLockScreenEnabledChange = { lockScreenController.setEnabled(it) }, onOpenNotificationCenter = { showNotificationCenter = true })
 
             DynamicIsland(
               state = dynamicIslandState,
               modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp)
             )
+
+            if (showNotificationCenter) {
+              NotificationCenter(
+                notifications = notifications,
+                onDismiss = { showNotificationCenter = false },
+                onClearAll = { notificationCenterController.clearAll() },
+                onRemove = { notificationCenterController.remove(it) },
+                onOpenSettings = {
+                  runCatching { startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")) }
+                }
+              )
+            }
 
             if (showLockScreen) {
               LockScreenOverlay(
