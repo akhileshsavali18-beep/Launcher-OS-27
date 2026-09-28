@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,8 @@ fun NotificationCenter(
   onDismiss: () -> Unit,
   onClearAll: () -> Unit,
   onRemove: (String) -> Unit,
-  onOpenSettings: () -> Unit
+  onOpenSettings: () -> Unit,
+  onOpenApp: (String) -> Unit = {}
 ) {
   Box(
     Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f))
@@ -55,7 +57,7 @@ fun NotificationCenter(
       } else {
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           items(notifications, key = { it.id }) { item ->
-            NotificationCard(item, onRemove = { onRemove(item.id) })
+            NotificationCard(item, onRemove = { onRemove(item.id) }, onOpenApp = onOpenApp)
           }
         }
       }
@@ -64,9 +66,10 @@ fun NotificationCenter(
 }
 
 @Composable
-private fun NotificationCard(item: LauncherNotification, onRemove: () -> Unit) {
+private fun NotificationCard(item: LauncherNotification, onRemove: () -> Unit, onOpenApp: (String) -> Unit) {
   Row(
     Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color.White.copy(alpha = 0.08f))
+      .clickable(enabled = item.packageName.isNotBlank()) { onOpenApp(item.packageName) }
       .padding(14.dp),
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
