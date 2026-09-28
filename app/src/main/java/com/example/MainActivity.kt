@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.HomeScreen
 import com.example.ui.LockScreenOverlay
+import com.example.ui.LockScreenController
 import com.example.ads.AdsManager
 import com.example.billing.SubscriptionManager
 import com.example.ui.theme.MyApplicationTheme
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
     AdsManager.initialize(this)
     val subscriptionManager = SubscriptionManager(this)
     billingManager = subscriptionManager
+    val lockScreenController = LockScreenController(this)
     setContent {
       val viewModel: LauncherViewModel = viewModel()
       val uiState by viewModel.uiState.collectAsState()
@@ -76,7 +78,7 @@ class MainActivity : ComponentActivity() {
           viewModel.refreshCalendarEvents()
         }
       }
-      var showLockScreen by remember { mutableStateOf(true) }
+      val showLockScreen by lockScreenController.visible.collectAsState()
       MyApplicationTheme(darkTheme = uiState.darkTheme, dynamicColor = false) {
         BackHandler { }
         Surface(
@@ -92,7 +94,7 @@ class MainActivity : ComponentActivity() {
                 dateString = uiState.dateString,
                 weather = uiState.weatherState,
                 battery = uiState.batteryState,
-                onDismiss = { showLockScreen = false },
+                onDismiss = { lockScreenController.dismiss() },
                 onFlashlight = { viewModel.toggleFlashlight() },
                 onCamera = {
                   runCatching {
