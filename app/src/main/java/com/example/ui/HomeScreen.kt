@@ -101,6 +101,8 @@ fun HomeScreen(
   activity: Activity,
   onRequestWeatherPermission: () -> Unit = {},
   onRequestCalendarPermission: () -> Unit = {},
+  lockScreenEnabled: Boolean = true,
+  onLockScreenEnabledChange: (Boolean) -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   val uiState by viewModel.uiState.collectAsState()
@@ -328,7 +330,9 @@ fun HomeScreen(
         onAnimations = viewModel::setAnimationsEnabled,
         onDarkTheme = viewModel::setDarkTheme,
         onWallpaper = viewModel::setWallpaperStyle,
-        onSetHome = viewModel::openDefaultLauncherSettings
+        onSetHome = viewModel::openDefaultLauncherSettings,
+        lockScreenEnabled = lockScreenEnabled,
+        onLockScreenEnabled = onLockScreenEnabledChange
       )
     }
 
@@ -585,7 +589,9 @@ private fun LauncherSettingsDialog(
   onAnimations: (Boolean) -> Unit,
   onDarkTheme: (Boolean) -> Unit,
   onWallpaper: (Int) -> Unit,
-  onSetHome: () -> Unit
+  onSetHome: () -> Unit,
+  lockScreenEnabled: Boolean,
+  onLockScreenEnabled: (Boolean) -> Unit
 ) {
   AlertDialog(
     onDismissRequest = onDismiss,
@@ -615,6 +621,12 @@ private fun LauncherSettingsDialog(
           Text("Dark theme")
           Switch(checked = state.darkTheme, onCheckedChange = onDarkTheme)
         }
+        Text("Lock Screen", fontWeight = FontWeight.Bold)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+          Text("In-app Lock Screen")
+          Switch(checked = lockScreenEnabled, onCheckedChange = onLockScreenEnabled)
+        }
+        Divider()
         Text("Wallpaper", fontWeight = FontWeight.SemiBold)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
           listOf("Aurora", "Cyan", "Mono").forEachIndexed { index, label ->
