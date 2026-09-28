@@ -3,6 +3,7 @@ package com.example.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,6 +50,7 @@ import com.example.ui.theme.CupertinoIndigo
 import com.example.ui.theme.CupertinoPurple
 import com.example.ui.theme.GlassBorder
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIconItem(
   app: AppInfo,
