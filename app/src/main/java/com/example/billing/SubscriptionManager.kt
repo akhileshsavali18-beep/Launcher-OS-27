@@ -3,6 +3,9 @@ package com.example.billing
 import android.app.Activity
 import android.content.Context
 import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.ProductDetailsResponseListener
+import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -14,8 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SubscriptionManager(context: Context) : BillingClient.ProductDetailsResponseListener,
-  BillingClient.PurchasesUpdatedListener {
+class SubscriptionManager(context: Context) : ProductDetailsResponseListener,
+  PurchasesUpdatedListener {
 
   companion object {
     const val MONTHLY_PRODUCT_ID = "launcher_premium_monthly"
@@ -56,7 +59,7 @@ class SubscriptionManager(context: Context) : BillingClient.ProductDetailsRespon
   }
 
   private fun connect() {
-    billingClient.startConnection(object : BillingClient.BillingClientStateListener {
+    billingClient.startConnection(object : BillingClientStateListener {
       override fun onBillingSetupFinished(result: com.android.billingclient.api.BillingResult) {
         if (result.responseCode == BillingClient.BillingResponseCode.OK) {
           queryProducts()
