@@ -1,6 +1,8 @@
 package com.example
 
 import android.os.Bundle
+import android.content.Intent
+import android.provider.MediaStore
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,11 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.HomeScreen
+import com.example.ui.LockScreenOverlay
 import com.example.ads.AdsManager
 import com.example.billing.SubscriptionManager
 import com.example.ui.theme.MyApplicationTheme
@@ -71,13 +76,33 @@ class MainActivity : ComponentActivity() {
           viewModel.refreshCalendarEvents()
         }
       }
+      var showLockScreen by remember { mutableStateOf(true) }
       MyApplicationTheme(darkTheme = uiState.darkTheme, dynamicColor = false) {
         BackHandler { }
         Surface(
           modifier = Modifier.fillMaxSize(),
           color = Color.Black
         ) {
-          HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) })
+          androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
+            HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) })
+
+            if (showLockScreen) {
+              LockScreenOverlay(
+                timeString = uiState.timeString,
+                dateString = uiState.dateString,
+                weather = uiState.weatherState,
+                battery = uiState.batteryState,
+                onDismiss = { showLockScreen = false },
+                onFlashlight = { viewModel.toggleFlashlight() },
+                onCamera = {
+                  runCatching {
+                    startActivity(Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA))
+                  }
+                },
+                modifier = Modifier.fillMaxSize()
+              )
+            }
+          }
         }
       }
     }
