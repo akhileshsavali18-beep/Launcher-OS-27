@@ -1,6 +1,7 @@
 package com.example.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ fun LockScreenOverlay(
     modifier = modifier
       .fillMaxSize()
       .testTag("lock_screen_overlay")
+      .clickable(onClick = onDismiss)
       .background(
         Brush.verticalGradient(
           listOf(Color(0xDD06111F), Color(0xCC111B35), Color(0xDD050A14))
