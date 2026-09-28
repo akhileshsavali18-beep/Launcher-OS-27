@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun DynamicIsland(
   state: DynamicIslandState,
+  onMusicPlayPause: () -> Unit = {},
+  onMusicNext: () -> Unit = {},
+  onMusicPrevious: () -> Unit = {},
   modifier: Modifier = Modifier
 ) {
   var expanded by remember { mutableStateOf(false) }
@@ -69,7 +72,7 @@ fun DynamicIsland(
           Text("Tap to close", color = Color.White.copy(alpha = 0.55f), fontSize = 11.sp)
         }
         if (state.hasCall) IslandRow("☎", "Incoming call", state.callerName.ifBlank { "Unknown caller" }, "Answer / Decline")
-        if (state.hasMusic) IslandRow("♫", if (state.musicPlaying) "Now Playing" else "Paused", state.musicTitle ?: "Music", state.musicArtist ?: "")
+        if (state.hasMusic) MusicIslandRow(state, onMusicPlayPause, onMusicPrevious, onMusicNext)
         if (state.hasTimer) IslandRow("◷", "Timer", formatTimer(state.timerSeconds), "Countdown")
         if (state.isCharging) IslandRow("⚡", "Charging", "PCT%".replace("PCT", state.batteryPercent.toString()) + "%", "Power connected")
         if (state.bluetoothConnected) IslandRow("ᛒ", "Bluetooth", "Connected", "Accessory active")
@@ -90,6 +93,18 @@ fun DynamicIsland(
           if (!hasContent) Spacer(Modifier.size(1.dp))
         }
       }
+    }
+  }
+}
+
+@Composable
+private fun MusicIslandRow(state: DynamicIslandState, onPlayPause: () -> Unit, onPrevious: () -> Unit, onNext: () -> Unit) {
+  Column(Modifier.fillMaxWidth()) {
+    IslandRow("♫", if (state.musicPlaying) "Now Playing" else "Paused", state.musicTitle ?: "Music", state.musicArtist ?: "")
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+      Text("⏮", color = Color.White, fontSize = 20.sp, modifier = Modifier.clickable { onPrevious() }.padding(10.dp))
+      Text(if (state.musicPlaying) "Ⅱ" else "▶", color = Color.White, fontSize = 20.sp, modifier = Modifier.clickable { onPlayPause() }.padding(10.dp))
+      Text("⏭", color = Color.White, fontSize = 20.sp, modifier = Modifier.clickable { onNext() }.padding(10.dp))
     }
   }
 }
