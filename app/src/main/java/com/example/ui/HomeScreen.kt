@@ -552,6 +552,7 @@ private fun HomeGridPage(
           app = app,
           iconSize = iconSizeDp.dp,
           showLabel = true,
+          animatePress = uiState.animationsEnabled,
           folderPreviewApps = if (app.isFolder) app.folderAppKeys.mapNotNull { installedByKey[it] }.take(4) else emptyList(),
           modifier = if (editMode) Modifier.pointerInput(app.packageName, uiState.homeApps) {
             detectDragGesturesAfterLongPress(
