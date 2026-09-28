@@ -162,11 +162,16 @@ class AppRepository(private val context: Context) {
     wifi?.isWifiEnabled ?: false
   } catch (_: Exception) { false }
 
-  fun getBluetoothEnabled(): Boolean = try {
-    if (android.os.Build.VERSION.SDK_INT >= 31 &&
-      androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return false
-    android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.isEnabled ?: false
-  } catch (_: Exception) { false }
+  fun getBluetoothEnabled(): Boolean {
+    return try {
+      if (android.os.Build.VERSION.SDK_INT >= 31 &&
+        androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        false
+      } else {
+        android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.isEnabled ?: false
+      }
+    } catch (_: Exception) { false }
+  }
 
   fun getAirplaneModeEnabled(): Boolean = try {
     android.provider.Settings.Global.getInt(context.contentResolver, android.provider.Settings.Global.AIRPLANE_MODE_ON, 0) != 0
