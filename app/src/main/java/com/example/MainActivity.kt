@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
           color = Color.Black
         ) {
           androidx.compose.foundation.layout.Box(modifier = Modifier.fillMaxSize()) {
-            HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) })
+            HomeScreen(viewModel = viewModel, subscriptionManager = subscriptionManager, activity = this@MainActivity, onRequestWeatherPermission = { locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)) }, onRequestCalendarPermission = { calendarPermissionLauncher.launch(Manifest.permission.READ_CALENDAR) }, lockScreenEnabled = lockScreenController.enabled, onLockScreenEnabledChange = { lockScreenController.setEnabled(it) })
 
             if (showLockScreen) {
               LockScreenOverlay(
