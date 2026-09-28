@@ -57,6 +57,7 @@ fun TopStatusBar(
   timeString: String,
   battery: BatteryState,
   appCount: Int,
+  dateString: String = "",
   modifier: Modifier = Modifier
 ) {
   var isExpanded by remember { mutableStateOf(false) }
@@ -128,6 +129,7 @@ fun DynamicIsland(
   isExpanded: Boolean,
   battery: BatteryState,
   appCount: Int,
+  dateString: String = "",
   onToggle: () -> Unit
 ) {
   val shape = RoundedCornerShape(32.dp)
