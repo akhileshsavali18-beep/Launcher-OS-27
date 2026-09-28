@@ -3,7 +3,6 @@ package com.example
 import android.os.Bundle
 import android.content.Intent
 import android.provider.MediaStore
-import android.provider.Settings
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothProfile
 import android.Manifest
@@ -25,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
       val uiState by viewModel.uiState.collectAsState()
       val dynamicIslandState by dynamicIslandController.state.collectAsState()
       val notifications by notificationCenterController.notifications.collectAsState()
-      var showNotificationCenter by mutableStateOf(false)
+      var showNotificationCenter by remember { mutableStateOf(false) }
       val locationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
       ) { result ->
