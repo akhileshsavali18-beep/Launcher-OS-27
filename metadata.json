@@ -1,0 +1,6 @@
+{
+  "name": "Launcher OS 18",
+  "description": "An iOS 18 style launcher for Android featuring glassmorphism widgets, dock, app library, and smooth navigation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
