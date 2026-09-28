@@ -135,6 +135,7 @@ fun AppLibrarySheet(
                 }
                 if (selectedLetter != null) Text("×", color = Color.White.copy(.7f), fontSize = 12.sp, modifier = Modifier.clickable { selectedLetter = null; onSearchQueryChange("") })
               }
+              }
             }
           }
         }
